@@ -6,7 +6,13 @@
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {}
+		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
+			"packages": "htop,inotify-tools"
+		},
+		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {
+			"elixirVersion": "latest",
+			"erlangVersion": "latest"
+		}
 	},
 	// Configure tool-specific properties.
 	"customizations": {
