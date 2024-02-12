@@ -17,7 +17,7 @@ defmodule NPAWeb.Router do
   scope "/", NPAWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", TranscribeLive
   end
 
   # Other scopes may use custom stacks.
