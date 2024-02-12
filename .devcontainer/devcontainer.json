@@ -10,21 +10,26 @@
 			"packages": "htop,inotify-tools"
 		},
 		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {
-			"elixirVersion": "latest",
-			"erlangVersion": "latest"
+			"erlangVersion": "26.2.1",
+			"elixirVersion": "1.16.1-otp-26"
 		}
 	},
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"JakeBecker.elixir-ls"
+				"JakeBecker.elixir-ls",
+				"phoenixframework.phoenix"
 			]
 		}
 	},
-	"postCreateCommand": ".devcontainer/post-create.sh"
+	// This is executed after devcontainer is built
+	"postCreateCommand": ".devcontainer/post-create.sh",
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	// Additional devcontainer mounts
+	"mounts": [
+		// This persists user profile across devcontainer rebuilds
+		"source=dc-npa-user,target=/home/vscode,type=volume"
+	]
 }
