@@ -1,15 +1,20 @@
 defmodule NPAWeb.TranscribeLive do
   use NPAWeb, :live_view
 
-  def mount(_parms, _session, socket) do
-    initial = "Tomek"
-    socket = assign(socket, text: initial, transcription: NPA.Transcriber.transcribe(initial))
+  @text_limit 100
+
+  def mount(params, _session, socket) do
+    socket =
+      socket
+      |> assign(text_limit: @text_limit)
+      |> assign_new_text(Map.get(params, "text", ""))
+
     {:ok, socket}
   end
 
   def render(assigns) do
     ~H"""
-    <form onsubmit="return false;">
+    <form>
       <input
         phx-change="input_change"
         id="text"
@@ -17,6 +22,7 @@ defmodule NPAWeb.TranscribeLive do
         type="text"
         value={@text}
         placeholder="Phrase to spell out"
+        maxlength={@text_limit}
         class="w-full rounded border-2 border-indigo-600"
       />
     </form>
@@ -28,8 +34,15 @@ defmodule NPAWeb.TranscribeLive do
     """
   end
 
-  def handle_event("input_change", %{"text" => new_value}, socket) do
-    {:noreply,
-     assign(socket, text: new_value, transcription: NPA.Transcriber.transcribe(new_value))}
+  def handle_event("input_change", %{"text" => new_text}, socket) do
+    {:noreply, assign_new_text(socket, new_text)}
+  end
+
+  defp assign_new_text(socket, new_text) do
+    new_text =
+      new_text
+      |> String.slice(0, @text_limit)
+
+    assign(socket, text: new_text, transcription: NPA.Transcriber.transcribe(new_text))
   end
 end

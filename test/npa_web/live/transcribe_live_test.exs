@@ -4,10 +4,28 @@ defmodule NPAWeb.TranscribeLiveTest do
 
   import Phoenix.LiveViewTest
 
-  test "starts with default text", %{conn: conn} do
+  test "starts with no text", %{conn: conn} do
     {:ok, _live, html} = live(conn, ~p"/")
 
-    assert extract_transcription(html) == Transcriber.transcribe("Tomek")
+    assert extract_transcription(html) == []
+  end
+
+  test "uses query params for initial test", %{conn: conn} do
+    initial_text = "Hello"
+
+    {:ok, _live, html} = live(conn, ~p"/?#{[text: initial_text]}")
+
+    assert extract_transcription(html) == Transcriber.transcribe(initial_text)
+  end
+
+  test "trims initial long texts to 100 characters", %{conn: conn} do
+    long_text = String.duplicate("Ł", 101)
+
+    {:ok, _live, html} = live(conn, ~p"/?#{[text: long_text]}")
+
+    transcription = extract_transcription(html)
+    assert length(transcription) == 100
+    assert String.starts_with?(long_text, Enum.into(transcription, ""))
   end
 
   test "updates transcription on change", %{conn: conn} do
@@ -16,10 +34,24 @@ defmodule NPAWeb.TranscribeLiveTest do
     new_code_words =
       live
       |> element("input")
-      |> render_change(%{text: "WTF"})
+      |> render_change(%{text: "Hello"})
       |> extract_transcription()
 
-    assert new_code_words == Transcriber.transcribe("WTF")
+    assert new_code_words == Transcriber.transcribe("Hello")
+  end
+
+  test "trims new text to 100 characters", %{conn: conn} do
+    long_text = String.duplicate("Ł", 101)
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    transcription =
+      live
+      |> element("input")
+      |> render_change(%{text: long_text})
+      |> extract_transcription()
+
+    assert length(transcription) == 100
+    assert String.starts_with?(long_text, Enum.into(transcription, ""))
   end
 
   defp extract_transcription(html) do
