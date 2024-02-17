@@ -3,11 +3,11 @@
 {
 	"name": "Debian",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
-			"packages": "htop,inotify-tools"
+			"packages": "htop,inotify-tools,openssl"
 		},
 		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {
 			"erlangVersion": "26.2.1",
