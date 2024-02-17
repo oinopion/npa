@@ -35,3 +35,5 @@ npa-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Ignore focused test marker
+/.vscode/TEST_FOCUS

@@ -2,13 +2,76 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "shell",
+			"label": "Run Phoenix Server",
 			"command": "mix phx.server",
+			"type": "shell",
 			"problemMatcher": [
+				"$mixCompileError",
 				"$mixCompileWarning",
-				"$mixCompileError"
 			],
-			"label": "mix: Run Server"
-		}
+			"presentation": {
+				"panel": "dedicated",
+			},
+			"icon": {
+				"id": "server-process"
+			},
+		},
+		{
+			"label": "Run All Tests",
+			"command": "mix test",
+			"type": "shell",
+			"group": "test",
+			"problemMatcher": [
+				"$mixCompileError",
+				"$mixCompileWarning",
+				"$mixTestFailure",
+			],
+		},
+		{
+			"label": "Set Focused Test",
+			"detail": "Sets current file & line as test to focus on",
+			"group": "test",
+			"type": "shell",
+			"command": "echo -n ${relativeFile}:${lineNumber} > ${workspaceRoot}/.vscode/TEST_FOCUS",
+			"presentation": {
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Set Focused Test File",
+			"detail": "Sets current file as test to focus on",
+			"group": "test",
+			"type": "shell",
+			"command": "echo -n ${relativeFile} > ${workspaceRoot}/.vscode/TEST_FOCUS",
+			"presentation": {
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Clear Focused Test",
+			"command": "echo '' > ${workspaceRoot}/.vscode/TEST_FOCUS",
+			"type": "shell",
+			"group": "test",
+			"presentation": {
+				"reveal": "silent",
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Run Focused Test",
+			"command": "mix test --trace $(cat ${workspaceRoot}/.vscode/TEST_FOCUS)",
+			"type": "shell",
+			"group": "test",
+			"problemMatcher": [
+				"$mixCompileError",
+				"$mixCompileWarning",
+				"$mixTestFailure"
+			],
+			"presentation": {
+				"clear": true,
+				"reveal": "always",
+				"showReuseMessage": false
+			}
+		},
 	]
 }
