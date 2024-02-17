@@ -9,8 +9,16 @@ defmodule NPAWeb.TranscribeLive do
 
   def render(assigns) do
     ~H"""
-    <form>
-      <input phx-change="input_change" id="text" name="text" type="text" value={@text} />
+    <form onsubmit="return false;">
+      <input
+        phx-change="input_change"
+        id="text"
+        name="text"
+        type="text"
+        value={@text}
+        placeholder="Phrase to spell out"
+        class="w-full rounded border-2 border-indigo-600"
+      />
     </form>
     <div id="transcription">
       <%= for word <- @transcription do %>
