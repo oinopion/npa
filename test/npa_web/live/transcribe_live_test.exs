@@ -54,10 +54,33 @@ defmodule NPAWeb.TranscribeLiveTest do
     assert String.starts_with?(long_text, Enum.into(transcription, ""))
   end
 
+  test "keeps history", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    live
+    |> element("input")
+    |> render_change(%{text: "Hello"})
+
+    history =
+      live
+      |> element("input")
+      |> render_change(%{text: "Hi"})
+      |> extract_history()
+
+    assert history == ["Hello"]
+  end
+
   defp extract_transcription(html) do
     html
     |> Floki.parse_fragment!()
     |> Floki.find("#transcription span")
+    |> Enum.map(&Floki.text(&1, sep: " "))
+  end
+
+  defp extract_history(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find("#history li")
     |> Enum.map(&Floki.text(&1, sep: " "))
   end
 end
