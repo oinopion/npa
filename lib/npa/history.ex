@@ -1,5 +1,7 @@
 defmodule Npa.History do
-  @type t :: list()
+  @type t :: list(binary())
+
+  @history_limit 5
 
   @spec new() :: __MODULE__.t()
   def new() do
@@ -9,9 +11,9 @@ defmodule Npa.History do
   @spec record(__MODULE__.t(), binary(), binary()) :: __MODULE__.t()
   def record(history, previous, current) when is_list(history) do
     cond do
-      # previous == "" ->
-      # Never add empty string to history
-      # history
+      previous == "" ->
+        # Never add empty string to history
+        history
 
       String.starts_with?(current, previous) ->
         # Continuing to add to current phrase, do nothing
@@ -22,7 +24,14 @@ defmodule Npa.History do
         history
 
       true ->
-        [previous | history]
+        [previous | history] |> Enum.take(@history_limit)
     end
+  end
+
+  def restore(history, stored_entires) when is_list(history) and is_list(stored_entires) do
+    history
+    |> Enum.concat(stored_entires)
+    |> Enum.uniq()
+    |> Enum.take(@history_limit)
   end
 end

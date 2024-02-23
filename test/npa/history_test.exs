@@ -32,12 +32,50 @@ defmodule Npa.HistoryTest do
       assert hist == ["łódź"]
     end
 
+    test "adds to the front of history" do
+      hist =
+        History.new()
+        |> History.record("łódź", "")
+        |> History.record("koń", "")
+
+      assert hist == ["koń", "łódź"]
+    end
+
     test "phrase that was previously seen" do
       hist =
         ["Hello"]
         |> History.record("Hel", "")
 
       assert hist == ["Hello"]
+    end
+  end
+
+  describe "restoring" do
+    test "on empty history simply returns it" do
+      hist =
+        History.new()
+        |> History.restore(~w"Hello World")
+
+      assert hist == ~w"Hello World"
+    end
+
+    test "adds to the end of current history" do
+      hist =
+        History.new()
+        |> History.record("Welcome", "")
+        |> History.restore(~w"Hello World")
+
+      assert hist == ~w"Welcome Hello World"
+    end
+
+    test "keeps history dupe-free and limited" do
+      hist =
+        History.new()
+        |> History.record("Welcome", "")
+        |> History.record("Hello", "")
+        |> History.restore(~w"Hello World")
+
+      assert hist == ~w"Hello Welcome World"
     end
   end
 end
