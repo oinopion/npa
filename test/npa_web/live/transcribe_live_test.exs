@@ -1,8 +1,9 @@
 defmodule NPAWeb.TranscribeLiveTest do
-  alias NPA.Transcriber
-  use NPAWeb.ConnCase
+  use NPAWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+
+  alias NPA.Transcriber
 
   test "starts with no text", %{conn: conn} do
     {:ok, _live, html} = live(conn, ~p"/")
@@ -68,6 +69,52 @@ defmodule NPAWeb.TranscribeLiveTest do
       |> extract_history()
 
     assert history == ["Hello"]
+  end
+
+  test "clears history", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    # Add some history entires
+    live
+    |> element("input")
+    |> tap(&render_change(&1, %{text: "Hello"}))
+    |> tap(&render_change(&1, %{text: "World"}))
+
+    history =
+      live
+      |> element("#history button")
+      |> render_click()
+      |> extract_history()
+
+    assert history == []
+  end
+
+  test "restores history", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    history =
+      live
+      |> element("#form")
+      |> render_hook("restore_history", %{"history" => Jason.encode!(~w"Hello World")})
+      |> extract_history()
+
+    assert history == ~w"Hello World"
+  end
+
+  test "pushes history to the browser", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    # Add some history entires
+    live
+    |> element("input")
+    |> tap(&render_change(&1, %{text: "Hello"}))
+    |> tap(&render_change(&1, %{text: "World"}))
+    |> tap(&render_change(&1, %{text: ""}))
+
+    send(live.pid, :store_history)
+
+    assert_push_event(live, "store_history", %{"history" => history_json})
+    assert Jason.decode!(history_json) == ~w"World Hello"
   end
 
   defp extract_transcription(html) do
