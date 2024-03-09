@@ -19,7 +19,8 @@
 		"vscode": {
 			"extensions": [
 				"JakeBecker.elixir-ls",
-				"phoenixframework.phoenix"
+				"phoenixframework.phoenix",
+				"bradlc.vscode-tailwindcss"
 			]
 		}
 	},

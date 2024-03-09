@@ -12,12 +12,29 @@ defmodule NPA.TranscriberTest do
       assert ~w(Tango Oscar Mike Echo Kilo) = Transcriber.transcribe("Tomek")
     end
 
-    test "returns divides multiple words with a space" do
-      assert ["Xray", " ", "Yankee"] = Transcriber.transcribe("X Y")
+    test "ignores white space" do
+      assert ["Alfa", "Bravo", "Charlie"] = Transcriber.transcribe("A  B\n  C")
+    end
+  end
+
+  describe "transcrive_phrase" do
+    test "returns empty list on empty input" do
+      assert [] == Transcriber.transcribe_phrase("")
+    end
+
+    test "returns pairs or word -> list of codewords" do
+      result = Transcriber.transcribe_phrase("Hello World")
+
+      assert [
+               {"Hello", Transcriber.transcribe("Hello")},
+               {"World", Transcriber.transcribe("World")}
+             ] == result
     end
 
     test "normalises white space to a signle space character" do
-      assert ["Alfa", " ", "Bravo", " ", "Charlie"] = Transcriber.transcribe("A  B\n  C")
+      result = Transcriber.transcribe_phrase("A  B\n  C   ")
+
+      assert [{"A", ["Alfa"]}, {"B", ["Bravo"]}, {"C", ["Charlie"]}] == result
     end
   end
 end

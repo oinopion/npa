@@ -35,11 +35,17 @@ defmodule NPA.Transcriber do
   White spaces are normalised to a single space. Letters from outside the Roman alphabet are mapped
   to `nil`.
   """
-  def transcribe(phrase) do
-    Regex.replace(~r/\s+/, phrase, " ")
+  def transcribe(word) do
+    Regex.replace(~r/\s+/, word, "")
     |> String.upcase()
     |> String.codepoints()
     |> Enum.map(&code_word/1)
+  end
+
+  def transcribe_phrase(phrase) do
+    Regex.replace(~r/\s+/, phrase, " ")
+    |> String.split()
+    |> Enum.map(fn word -> {word, transcribe(word)} end)
   end
 
   defp code_word(codepoint) do

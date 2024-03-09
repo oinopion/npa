@@ -5,6 +5,7 @@ defmodule NPAWeb.TranscribeLive do
 
   @text_limit 100
   @history_debounce_ms 2000
+  @codewords_colors ~w"cyan violet teal blue emerald indigo"
 
   def mount(params, _session, socket) do
     socket =
@@ -23,7 +24,7 @@ defmodule NPAWeb.TranscribeLive do
 
   def render(assigns) do
     ~H"""
-    <form id="form" phx-hook="history">
+    <form id="form" phx-hook="history" class="m-0">
       <input
         phx-change="input_change"
         id="text"
@@ -35,11 +36,19 @@ defmodule NPAWeb.TranscribeLive do
         class="w-full rounded border-2 border-indigo-600"
       />
     </form>
-    <div id="transcription">
-      <%= for word <- @transcription do %>
-        <span><%= word %></span>
+
+    <dl id="transcription" class="m-0 py-2">
+      <%= for {word, codewords} <- @transcription do %>
+        <div class="p-1 leading-8">
+          <dt class="word font-bold"><%= word %>:</dt>
+          <dd class="">
+            <%= for {bg_cls, cw} <- with_bg_classes(codewords) do %>
+              <span class={"codeword bg-#{bg_cls}-500 text-white p-1 rounded"}><%= cw %></span>
+            <% end %>
+          </dd>
+        </div>
       <% end %>
-    </div>
+    </dl>
 
     <%= if @history != [] do %>
       <hr />
@@ -108,7 +117,7 @@ defmodule NPAWeb.TranscribeLive do
       |> String.slice(0, @text_limit)
       |> String.trim()
 
-    transcription = NPA.Transcriber.transcribe(new_text)
+    transcription = NPA.Transcriber.transcribe_phrase(new_text)
 
     current_text = socket.assigns[:text]
     current_history = socket.assigns[:history]
@@ -145,5 +154,11 @@ defmodule NPAWeb.TranscribeLive do
     |> Debouncer.cancel()
 
     socket
+  end
+
+  defp with_bg_classes(transcription) do
+    @codewords_colors
+    |> Stream.cycle()
+    |> Enum.zip(transcription)
   end
 end
