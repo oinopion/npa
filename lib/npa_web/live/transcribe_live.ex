@@ -1,11 +1,14 @@
 defmodule NPAWeb.TranscribeLive do
   use NPAWeb, :live_view
 
+  alias NPA.Transcriber
   alias Npa.History
 
   @text_limit 100
   @history_debounce_ms 2000
-  @codewords_colors ~w"cyan violet teal blue emerald indigo"
+  @codewords_colors Transcriber.code_words()
+                    |> Enum.zip(Stream.cycle(~w"cyan violet teal blue emerald indigo"))
+                    |> Enum.into(%{})
 
   def mount(params, _session, socket) do
     socket =
@@ -24,43 +27,42 @@ defmodule NPAWeb.TranscribeLive do
 
   def render(assigns) do
     ~H"""
-    <form id="form" phx-hook="history" class="m-0">
-      <input
-        phx-change="input_change"
-        id="text"
-        name="text"
-        type="text"
-        value={@text}
-        placeholder="Phrase to spell out"
-        maxlength={@text_limit}
-        class="w-full rounded border-2 border-indigo-600"
-      />
-    </form>
+    <section>
+      <form id="form" phx-hook="history" class="m-0">
+        <input
+          phx-change="input_change"
+          id="text"
+          name="text"
+          type="text"
+          value={@text}
+          placeholder="Phrase to spell out"
+          maxlength={@text_limit}
+          class="w-full rounded border-2 border-indigo-600"
+        />
+      </form>
 
-    <dl id="transcription" class="m-0 py-2">
-      <%= for {word, codewords} <- @transcription do %>
-        <div class="p-1 leading-8">
-          <dt class="word font-bold"><%= word %>:</dt>
-          <dd class="">
+      <dl id="transcription" class="m-0 px-1 py-2">
+        <%= for {word, codewords} <- @transcription do %>
+          <dt class="word font-bold pt-1"><%= word %>:</dt>
+          <dd class="leading-8 pb-1">
             <%= for {bg_cls, cw} <- with_bg_classes(codewords) do %>
-              <span class={"codeword bg-#{bg_cls}-500 text-white p-1 rounded"}><%= cw %></span>
+              <span class={"codeword bg-#{bg_cls}-700 text-white p-1 rounded"}><%= cw %></span>
             <% end %>
           </dd>
-        </div>
-      <% end %>
-    </dl>
+        <% end %>
+      </dl>
+    </section>
 
     <%= if @history != [] do %>
-      <hr />
-      <div id="history">
-        <p>History</p>
+      <section id="history" class="border-t-2 border-zinc-200">
+        <p>Previous phrases</p>
         <ol>
           <%= for text <- @history do %>
             <li><%= text %></li>
           <% end %>
         </ol>
         <button phx-click="clear_history">Clear history</button>
-      </div>
+      </section>
     <% end %>
     """
   end
@@ -157,8 +159,9 @@ defmodule NPAWeb.TranscribeLive do
   end
 
   defp with_bg_classes(transcription) do
-    @codewords_colors
-    |> Stream.cycle()
-    |> Enum.zip(transcription)
+    transcription
+    |> Enum.map(fn code_word ->
+      {Map.get(@codewords_colors, code_word, "bg-black"), code_word}
+    end)
   end
 end
