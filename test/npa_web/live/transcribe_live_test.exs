@@ -55,6 +55,31 @@ defmodule NPAWeb.TranscribeLiveTest do
     assert String.starts_with?(long_text, Enum.into(transcription, ""))
   end
 
+  test "updates url params with new text on blur", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    live
+    |> element("input")
+    |> tap(&render_change(&1, %{text: "Hello"}))
+    |> tap(&render_blur(&1))
+
+    assert_patch(live, ~p"/?#{[text: "Hello"]}")
+  end
+
+  test "updates url params with new text on submit", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/")
+
+    live
+    |> element("input")
+    |> render_change(%{text: "Hello"})
+
+    live
+    |> element("form")
+    |> render_submit()
+
+    assert_patch(live, ~p"/?#{[text: "Hello"]}")
+  end
+
   test "keeps history", %{conn: conn} do
     {:ok, live, _html} = live(conn, ~p"/")
 
@@ -115,6 +140,23 @@ defmodule NPAWeb.TranscribeLiveTest do
 
     assert_push_event(live, "store_history", %{"history" => history_json})
     assert Jason.decode!(history_json) == ~w"World Hello"
+  end
+
+  test "clears text", %{conn: conn} do
+    {:ok, live, _html} = live(conn, ~p"/?#{[text: "Hello"]}")
+
+    live
+    |> element("#clear_text")
+    |> render_click()
+
+    text =
+      live
+      |> element("input")
+      |> render()
+      |> Floki.parse_fragment!()
+      |> Floki.attribute("value")
+
+    assert text == [""]
   end
 
   defp extract_transcription(html) do
