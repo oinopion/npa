@@ -3,7 +3,7 @@ defmodule NPAWeb.TranscribeLive do
   use NPAWeb, :live_view
 
   alias NPA.Transcriber
-  alias Npa.History
+  alias NPA.History
 
   @text_limit 100
   @history_debounce_ms 2000

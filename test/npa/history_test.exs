@@ -1,7 +1,7 @@
-defmodule Npa.HistoryTest do
+defmodule NPA.HistoryTest do
   use ExUnit.Case, async: true
 
-  alias Npa.History
+  alias NPA.History
 
   test "new/0 returns an empty list" do
     assert History.new() == []

@@ -1,4 +1,4 @@
-defmodule Npa.History do
+defmodule NPA.History do
   @type t :: list(binary())
 
   @history_limit 5
