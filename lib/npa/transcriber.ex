@@ -43,6 +43,7 @@ defmodule NPA.Transcriber do
 
   def transcribe(word) do
     Regex.replace(~r/\s+/, word, "")
+    |> Unicode.Transform.LatinAscii.transform()
     |> String.upcase()
     |> String.codepoints()
     |> Enum.map(&code_word/1)

@@ -192,7 +192,7 @@ defmodule NPAWeb.TranscribeLive do
   defp with_bg_classes(transcription) do
     transcription
     |> Enum.map(fn code_word ->
-      {Map.get(@codewords_colors, code_word, "bg-black"), code_word}
+      {Map.get(@codewords_colors, code_word, "red"), code_word}
     end)
   end
 end

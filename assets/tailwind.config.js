@@ -20,7 +20,7 @@ module.exports = {
   },
   safelist: [
     {
-      pattern: /bg-(cyan|violet|teal|blue|emerald|indigo)-(500|600|700)/,
+      pattern: /bg-(cyan|violet|teal|blue|emerald|indigo|red)-(500|600|700)/,
     },
   ],
   plugins: [
