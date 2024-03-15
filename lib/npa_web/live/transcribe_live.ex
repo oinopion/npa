@@ -6,7 +6,6 @@ defmodule NPAWeb.TranscribeLive do
   alias NPA.History
 
   @text_limit 100
-  @history_debounce_ms 2000
   @codewords_colors Transcriber.code_words()
                     |> Enum.zip(Stream.cycle(~w"cyan violet teal blue emerald indigo"))
                     |> Enum.into(%{})
@@ -21,7 +20,6 @@ defmodule NPAWeb.TranscribeLive do
         history: History.new(),
         last_text_param: ""
       )
-      |> start_debouncer()
 
     {:ok, socket}
   end
@@ -40,10 +38,10 @@ defmodule NPAWeb.TranscribeLive do
   def render(assigns) do
     ~H"""
     <section>
-      <form id="form" phx-hook="history" class="m-0 relative w-full" phx-submit="update_text_param">
+      <form id="form" phx-hook="history" class="m-0 relative w-full" phx-submit="confirm_text">
         <input
           phx-change="input_change"
-          phx-blur="update_text_param"
+          phx-blur="confirm_text"
           id="text"
           name="text"
           type="text"
@@ -96,23 +94,16 @@ defmodule NPAWeb.TranscribeLive do
     socket =
       socket
       |> assign_new_text(new_text)
-      |> debounce_history_storage()
 
     {:noreply, socket}
   end
 
-  def handle_event("update_text_param", _params, socket) do
+  def handle_event("confirm_text", _, socket) do
     # This handler is invoked from form submit and input blur and params will be different depending on the source event
-    %{text: text, last_text_param: last_text_param} = socket.assigns
 
     socket =
-      if text != last_text_param do
-        socket
-        |> assign(last_text_param: text)
-        |> push_patch(to: ~p"/?text=#{text}")
-      else
-        socket
-      end
+      socket
+      |> maybe_update_url_param()
 
     {:noreply, socket}
   end
@@ -143,23 +134,8 @@ defmodule NPAWeb.TranscribeLive do
       socket
       |> assign(history: history)
       |> push_event("store_history", %{"history" => Jason.encode!(history)})
-      |> cancel_history_storage_debounce()
 
     {:noreply, socket}
-  end
-
-  def handle_info(:store_history, socket) do
-    case socket.assigns[:history] do
-      [] ->
-        {:noreply, socket}
-
-      history ->
-        socket =
-          socket
-          |> push_event("store_history", %{"history" => Jason.encode!(history)})
-
-        {:noreply, socket}
-    end
   end
 
   defp assign_new_text(socket, new_text) do
@@ -174,37 +150,43 @@ defmodule NPAWeb.TranscribeLive do
     current_history = socket.assigns[:history]
     new_history = History.record(current_history, current_text, new_text)
 
-    socket
-    |> assign(
-      text: new_text,
-      transcription: transcription,
-      history: new_history
-    )
-  end
+    socket =
+      socket
+      |> assign(
+        text: new_text,
+        transcription: transcription,
+        history: new_history
+      )
 
-  defp start_debouncer(socket) do
-    if connected?(socket) do
-      {:ok, debouncer} = Debouncer.start_link(@history_debounce_ms)
-      assign(socket, debouncer: debouncer)
+    if new_history != current_history do
+      socket
+      |> maybe_store_history()
     else
-      assign(socket, debouncer: nil)
+      socket
     end
   end
 
-  defp debounce_history_storage(socket) do
-    if connected?(socket) do
-      socket.assigns[:debouncer]
-      |> Debouncer.schedule(:store_history)
-    end
+  defp maybe_store_history(socket) do
+    case socket.assigns[:history] do
+      [] ->
+        socket
 
-    socket
+      history ->
+        socket
+        |> push_event("store_history", %{"history" => Jason.encode!(history)})
+    end
   end
 
-  defp cancel_history_storage_debounce(socket) do
-    socket.assigns[:debouncer]
-    |> Debouncer.cancel()
+  defp maybe_update_url_param(socket) do
+    %{text: text, last_text_param: last_text_param} = socket.assigns
 
-    socket
+    if text != last_text_param do
+      socket
+      |> assign(last_text_param: text)
+      |> push_patch(to: ~p"/?text=#{text}")
+    else
+      socket
+    end
   end
 
   defp with_bg_classes(transcription) do
