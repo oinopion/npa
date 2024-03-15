@@ -26,18 +26,11 @@ defmodule Debouncer do
   end
 
   @impl true
-  def handle_call(
-        {:schedule, key, message},
-        _from,
-        %{
-          debounce_ms: debounce_ms,
-          client_pid: client_pid,
-          timers: timers
-        } = state
-      ) do
+  def handle_call({:schedule, key, message}, _from, state) do
+    %{debounce_ms: debounce_ms, client_pid: client_pid, timers: timers} = state
+
     if should_schedule?(timers[key]) do
       timer = Process.send_after(client_pid, message, debounce_ms)
-      # timer = Process.send_after(client_pid, message, debounce_ms)
       {:reply, :ok, %{state | timers: Map.put(timers, key, timer)}}
     else
       {:reply, :ok, state}
