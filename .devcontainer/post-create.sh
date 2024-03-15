@@ -11,3 +11,8 @@ sudo apt-get update
 
 mix local.hex --force
 mix local.rebar --force
+
+if [ -f ".devcontainer/post-create-local.sh" ]; then
+  echo "'.devcontainer/post-create-local.sh' found, sourcing..."
+  source ".devcontainer/post-create-local.sh"
+fi
