@@ -84,5 +84,6 @@ jobs:
         context: .
         push: ${{ github.ref == 'refs/heads/main' }}
         labels: ${{ steps.meta.outputs.labels }}
+        tags: latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
