@@ -69,6 +69,9 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+            type=ref,event=branch
+            type=ref,event=pr
 
     - name: Log in to the Docker registry
       if: ${{ github.ref == 'refs/heads/main' }}
@@ -84,6 +87,6 @@ jobs:
         context: .
         push: ${{ github.ref == 'refs/heads/main' }}
         labels: ${{ steps.meta.outputs.labels }}
-        tags: latest
+        tags: ${{ steps.meta.outputs.tags }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
