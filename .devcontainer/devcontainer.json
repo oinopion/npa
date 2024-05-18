@@ -12,7 +12,8 @@
 		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {
 			"erlangVersion": "26.2.1",
 			"elixirVersion": "1.16.1-otp-26"
-		}
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 	// Configure tool-specific properties.
 	"customizations": {
@@ -24,6 +25,7 @@
 			]
 		}
 	},
+	"init": true,
 	// This is executed after devcontainer is built
 	"postCreateCommand": ".devcontainer/post-create.sh",
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
