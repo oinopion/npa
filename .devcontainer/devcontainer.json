@@ -2,12 +2,17 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
 	"name": "Debian",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+	// More info: https://containers.dev/guide/dockerfile
+	"dockerComposeFile": [
+		"../docker-compose.yml",
+		"docker-compose.extend.yml"
+	],
+	"service": "devcontainer",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
-			"packages": "htop,inotify-tools,openssl"
+			"packages": "htop,inotify-tools,openssl,postgresql-client,pgcli"
 		},
 		"ghcr.io/devcontainers-contrib/features/elixir-asdf:2": {
 			"erlangVersion": "26.2.1",
@@ -31,8 +36,8 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Additional devcontainer mounts
-	"mounts": [
-		// This persists user profile across devcontainer rebuilds
-		"source=dc-npa-user,target=/home/vscode,type=volume"
-	]
+	// "mounts": [
+	// 	// This persists user profile across devcontainer rebuilds
+	// 	"source=dc-npa-user,target=/home/vscode,type=volume"
+	// ]
 }

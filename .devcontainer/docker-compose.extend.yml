@@ -1,0 +1,11 @@
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/base:bookworm
+    init: true
+    command: sleep infinity
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db/npa_dev
+      - TEST_DATABASE_URL=postgresql://postgres:postgres@db/npa_test
+    volumes:
+      # Project workspace
+      - ..:/workspaces/:cached

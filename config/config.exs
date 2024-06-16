@@ -7,7 +7,14 @@
 # General application configuration
 import Config
 
+config :npa, NPA.Repo,
+  database: "npa_repo",
+  username: "user",
+  password: "pass",
+  hostname: "localhost"
+
 config :npa,
+  ecto_repos: [NPA.Repo],
   namespace: NPA,
   generators: [timestamp_type: :utc_datetime]
 

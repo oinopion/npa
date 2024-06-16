@@ -9,6 +9,7 @@ defmodule NPA.Application do
   def start(_type, _args) do
     children = [
       NPAWeb.Telemetry,
+      NPA.Repo,
       {DNSCluster, query: Application.get_env(:npa, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: NPA.PubSub},
       # Start a worker by calling: NPA.Worker.start_link(arg)
