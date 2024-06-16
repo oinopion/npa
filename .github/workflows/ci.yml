@@ -72,6 +72,7 @@ jobs:
         tags: |
             type=ref,event=branch
             type=ref,event=pr
+            type=sha
 
     - name: Log in to the Docker registry
       if: ${{ github.ref == 'refs/heads/main' }}
